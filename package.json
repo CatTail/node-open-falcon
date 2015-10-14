@@ -3,24 +3,12 @@
     "description": "open-falcon nodejs client",
     "repository": "CatTail/node-open-falcon",
     "version": "1.0.0",
-    "keywords": [
-    ],
+    "keywords": [],
     "files": [
         "index.js"
     ],
-    "devDependencies": {
-        "istanbul": "0",
-        "mocha": "*",
-        "should": "*"
-    },
     "license": "MIT",
     "dependencies": {
-        "debug": "*"
-    },
-    "scripts": {
-        "debug": "./node_modules/.bin/mocha --debug-brk --require should test",
-        "test": "NODE_ENV=test ./node_modules/.bin/mocha --require should --reporter spec",
-        "test-cov": "NODE_ENV=test node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --require should",
-        "test-travis": "NODE_ENV=test node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --require should"
+        "request": "^2.65.0"
     }
 }
