@@ -55,6 +55,9 @@ Falcon.prototype.push = function(metric, value, options) {
 
 Falcon.prototype.flush = function() {
     let metrics = this.metrics;
+    if (!metrics.length) {
+        return;
+    }
     this.metrics = [];
 
     let self = this;
