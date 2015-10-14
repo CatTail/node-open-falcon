@@ -1,14 +1,14 @@
 {
-    "name": "open-falcon",
-    "description": "open-falcon nodejs client",
-    "repository": "CatTail/node-open-falcon",
-    "version": "1.0.0",
-    "keywords": [],
-    "files": [
-        "index.js"
-    ],
-    "license": "MIT",
-    "dependencies": {
-        "request": "^2.65.0"
-    }
+  "name": "open-falcon",
+  "description": "open-falcon nodejs client",
+  "repository": "CatTail/node-open-falcon",
+  "version": "1.0.1",
+  "keywords": [],
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.65.0"
+  }
 }
