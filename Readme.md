@@ -25,6 +25,10 @@ see [open-falcon data push section](http://book.open-falcon.com/zh/usage/data-pu
             .gauge('node.mem.used', usage.heapUsed);
     }, 1000 * 60);
 
+## TODO
+
+* Global waiting queue rather than every instance manage it's own metric queue
+
 ## License
 
 MIT
