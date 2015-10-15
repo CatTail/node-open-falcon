@@ -6,7 +6,6 @@ let request = require('request');
 let util = require('util');
 let EventEmitter = require('events').EventEmitter;
 let debug = require('debug')('open-falcon:index');
-request = request.defaults({proxy: 'http://localhost:8888'});
 
 /**
  * var Falcon = require('open-falcon');
