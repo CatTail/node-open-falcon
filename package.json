@@ -9,6 +9,14 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "debug": "^2.2.0",
     "request": "^2.65.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.3",
+    "should": "^7.1.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --require should test"
   }
 }
