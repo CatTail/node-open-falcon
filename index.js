@@ -71,7 +71,7 @@ Falcon.init = function(api, project, handler) {
     debug('init', api, project);
     Falcon.API = api;
     Falcon.PROJECT = project;
-    Falcon.DEFAULT_HANDLER = handler;
+    Falcon.DEFAULT_HANDLER = handler || function noop(){};
 };
 
 Falcon.prototype.now = function() {
@@ -230,7 +230,8 @@ Falcon.prototype.flush = function() {
     request.post({
         url: Falcon.API,
         body: JSON.stringify(queue),
-    }, this._handler);
+    }, this._handler)
+        .on('error', this._handler);
 };
 
 module.exports = Falcon;
