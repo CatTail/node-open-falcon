@@ -3,8 +3,6 @@
 let os = require('os');
 let http = require('http');
 let request = require('request');
-let util = require('util');
-let EventEmitter = require('events').EventEmitter;
 let debug = require('debug')('open-falcon:index');
 
 /**
@@ -49,11 +47,11 @@ function Falcon(options) {
     this.counterType(options.counterType === undefined ?
               Falcon.DEFAULT_COUNTER_TYPE : options.counterType);
     this.tag('project', Falcon.PROJECT);
+    this._handler = options.handler || Falcon.DEFAULT_HANDLER;
     if (options.tags) {
         this.tag(options.tags);
     }
 }
-util.inherits(Falcon, EventEmitter);
 
 /**
  * api: Falcon push api
@@ -67,11 +65,13 @@ Falcon.ENDPOINT = os.hostname();
 /**
  * @param {string} api
  * @param {string} project project name
+ * @param {Function} handler optional request handler
  */
-Falcon.init = function(api, project) {
+Falcon.init = function(api, project, handler) {
     debug('init', api, project);
     Falcon.API = api;
     Falcon.PROJECT = project;
+    Falcon.DEFAULT_HANDLER = handler;
 };
 
 Falcon.prototype.now = function() {
@@ -230,11 +230,7 @@ Falcon.prototype.flush = function() {
     request.post({
         url: Falcon.API,
         body: JSON.stringify(queue),
-    }, function(err) {
-        if (err) {
-            self.emit('error', err);
-        }
-    });
+    }, this._handler);
 };
 
 module.exports = Falcon;
