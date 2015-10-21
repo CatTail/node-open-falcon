@@ -5,6 +5,14 @@ let http = require('http');
 let request = require('request');
 let debug = require('debug')('open-falcon:index');
 
+function getTrimedHostname() {
+    let hostname = os.hostname();
+    if (hostname.split('.').length) {
+        return hostname.split('.')[0];
+    }
+    return hostname;
+}
+
 /**
  * var Falcon = require('open-falcon');
  * Falcon.init('http://localhost:6060', 'exampleProject');
@@ -60,7 +68,7 @@ function Falcon(options) {
  */
 Falcon.DEFAULT_STEP = 60;
 Falcon.DEFAULT_COUNTER_TYPE = 'GAUGE';
-Falcon.ENDPOINT = os.hostname();
+Falcon.ENDPOINT = getTrimedHostname();
 
 /**
  * @param {string} api
