@@ -38,9 +38,7 @@ function getTrimedHostname() {
 /**
  * options
  *   step: optional, integer, seconds, default 60
- *   counterType: optional, default 'GAUGE'
  *   tags: optional
- *   flush: optional, seconds, automatically flush timeout
  */
 function Falcon(options) {
     debug('constructor', options);
@@ -52,8 +50,6 @@ function Falcon(options) {
 
     // step trigger autoFlush
     this.step(options.step === undefined ? Falcon.DEFAULT_STEP : options.step);
-    this.counterType(options.counterType === undefined ?
-              Falcon.DEFAULT_COUNTER_TYPE : options.counterType);
     this.tag('project', Falcon.PROJECT);
     this._handler = options.handler || Falcon.DEFAULT_HANDLER;
     if (options.tags) {
@@ -80,10 +76,6 @@ Falcon.init = function(api, project, handler) {
     Falcon.API = api;
     Falcon.PROJECT = project;
     Falcon.DEFAULT_HANDLER = handler || function noop(){};
-};
-
-Falcon.prototype.now = function() {
-    return Math.floor(Date.now() / 1000);
 };
 
 Falcon.prototype.tag = function(key, value) {
@@ -119,17 +111,6 @@ Falcon.prototype.step = function(step) {
     return this;
 };
 
-Falcon.prototype.counterType = function(counterType) {
-    debug('counterType', counterType);
-    if (this._lock) {
-        this.emit('error', new Error('Falcon locked, can\'t alter counterType'));
-        return this;
-    }
-
-    this._counterType = counterType;
-    return this;
-};
-
 Falcon.prototype.gauge = function(metric, value, options) {
     debug('gauge', metric, value, options);
     options = options || {};
@@ -148,46 +129,57 @@ Falcon.prototype.counter = function(metric, value, options) {
 
 Falcon.prototype.increment = function(metric, options) {
     debug('increment', metric, options);
-    this._lock = true;
     options = options || {};
     options.counterType = 'INCREMENT';
     this.push(metric, 1, options);
     return this;
 };
 
-Falcon.prototype.push = function(metric, value, options) {
-    options = options || {};
+/**
+ * @private
+ */
+Falcon.prototype.now = function() {
+    return Math.floor(Date.now() / 1000);
+};
+
+/**
+ * @private
+ */
+Falcon.prototype.createItem = function(metric, value, options) {
     options.tags = options.tags ? (','+options.tags) : '';
 
     let endpoint = Falcon.ENDPOINT;
     let timestamp = this.now();
     let step = options.step || this._step;
-    let counterType = options.counterType || this._counterType;
+    let counterType = options.counterType;
     let tags = this._tags + options.tags;
 
-    if (counterType === 'GAUGE' || counterType === 'COUNTER') {
-        this._queue.push({
-            metric,
-            value,
-            endpoint,
-            timestamp,
-            step,
-            counterType,
-            tags,
-        });
-    } else if (counterType === 'INCREMENT') {
+    if (counterType === 'INCREMENT') {
         // reset fake counterType
         counterType = 'GAUGE';
+    }
+
+    return {
+        metric,
+        value,
+        endpoint,
+        timestamp,
+        step,
+        counterType,
+        tags,
+    };
+};
+
+/**
+ * @private
+ */
+Falcon.prototype.push = function(metric, value, options) {
+    let counterType = options.counterType || Falcon.DEFAULT_COUNTER_TYPE;
+    if (counterType === 'GAUGE' || counterType === 'COUNTER') {
+        this._queue.push(this.createItem(metric, value, options));
+    } else if (counterType === 'INCREMENT') {
         if (!this._increment) {
-            this._increment = {
-                metric,
-                value,
-                endpoint,
-                timestamp,
-                step,
-                counterType,
-                tags,
-            };
+            this._increment = this.createItem(metric, value, options);
         } else {
             this._increment.value = this._increment.value + 1;
         }
@@ -196,6 +188,9 @@ Falcon.prototype.push = function(metric, value, options) {
     return this;
 };
 
+/**
+ * @private
+ */
 Falcon.prototype.autoFlush = function() {
     debug('autoFlush');
     clearTimeout(this._timeout);
@@ -209,13 +204,18 @@ Falcon.prototype.autoFlush = function() {
     }, step * 1000);
 };
 
+/**
+ * @private
+ */
 Falcon.prototype.checkAndFlush = function() {
     debug('checkAndFlush');
     let timestamp = this.now();
     if (this._increment) {
         if (timestamp - this._increment.timestamp >= this._step) {
-            this._queue.push(this._increment);
-            this._increment = null;
+            let increment = this._increment;
+            this._queue.push(increment);
+            // reset increment rather than delete it
+            this._increment = this.createItem(increment.metric, 0, {counterType: 'INCREMENT'});
         }
     }
 
@@ -226,6 +226,9 @@ Falcon.prototype.checkAndFlush = function() {
     }
 };
 
+/**
+ * @private
+ */
 Falcon.prototype.flush = function() {
     debug('flush', this._queue);
     let queue = this._queue;
