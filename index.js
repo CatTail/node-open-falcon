@@ -1,12 +1,12 @@
 'use strict';
 
-let os = require('os');
-let http = require('http');
-let request = require('request');
-let debug = require('debug')('open-falcon:index');
+var os = require('os');
+var http = require('http');
+var request = require('request');
+var debug = require('debug')('open-falcon:index');
 
 function getTrimedHostname() {
-    let hostname = os.hostname();
+    var hostname = os.hostname();
     if (hostname.split('.').length) {
         return hostname.split('.')[0];
     }
@@ -148,11 +148,11 @@ Falcon.prototype.now = function() {
 Falcon.prototype.createItem = function(metric, value, options) {
     options.tags = options.tags ? (','+options.tags) : '';
 
-    let endpoint = Falcon.ENDPOINT;
-    let timestamp = this.now();
-    let step = options.step || this._step;
-    let counterType = options.counterType;
-    let tags = this._tags + options.tags;
+    var endpoint = Falcon.ENDPOINT;
+    var timestamp = this.now();
+    var step = options.step || this._step;
+    var counterType = options.counterType;
+    var tags = this._tags + options.tags;
 
     if (counterType === 'INCREMENT') {
         // reset fake counterType
@@ -160,13 +160,13 @@ Falcon.prototype.createItem = function(metric, value, options) {
     }
 
     return {
-        metric,
-        value,
-        endpoint,
-        timestamp,
-        step,
-        counterType,
-        tags,
+        metric: metric,
+        value: value,
+        endpoint: endpoint,
+        timestamp: timestamp,
+        step: step,
+        counterType: counterType,
+        tags: tags,
     };
 };
 
@@ -174,7 +174,7 @@ Falcon.prototype.createItem = function(metric, value, options) {
  * @private
  */
 Falcon.prototype.push = function(metric, value, options) {
-    let counterType = options.counterType || Falcon.DEFAULT_COUNTER_TYPE;
+    var counterType = options.counterType || Falcon.DEFAULT_COUNTER_TYPE;
     if (counterType === 'GAUGE' || counterType === 'COUNTER') {
         this._queue.push(this.createItem(metric, value, options));
     } else if (counterType === 'INCREMENT') {
@@ -197,8 +197,8 @@ Falcon.prototype.autoFlush = function() {
     this.checkAndFlush();
 
     // if step equals to zero, reset it to 1
-    let step = this._step || 1;
-    let self = this;
+    var step = this._step || 1;
+    var self = this;
     this._timeout = setTimeout(function() {
         self.autoFlush();
     }, step * 1000);
@@ -209,10 +209,10 @@ Falcon.prototype.autoFlush = function() {
  */
 Falcon.prototype.checkAndFlush = function() {
     debug('checkAndFlush');
-    let timestamp = this.now();
+    var timestamp = this.now();
     if (this._increment) {
         if (timestamp - this._increment.timestamp >= this._step) {
-            let increment = this._increment;
+            var increment = this._increment;
             this._queue.push(increment);
             // reset increment rather than delete it
             this._increment = this.createItem(increment.metric, 0, {counterType: 'INCREMENT'});
@@ -231,13 +231,13 @@ Falcon.prototype.checkAndFlush = function() {
  */
 Falcon.prototype.flush = function() {
     debug('flush', this._queue);
-    let queue = this._queue;
+    var queue = this._queue;
     if (!queue.length) {
         return;
     }
     this._queue = [];
 
-    let self = this;
+    var self = this;
     request.post({
         url: Falcon.API,
         body: JSON.stringify(queue),

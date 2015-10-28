@@ -1,21 +1,21 @@
 'use strict';
-let Falcon = require('..');
-let debug = require('debug')('open-falcon:test');
+var Falcon = require('..');
+var debug = require('debug')('open-falcon:test');
 
 describe('open-falcon', function() {
     this.timeout(5000);
 
-    let api = 'http://localhost:6060';
-    let project = 'projectName';
+    var api = 'http://localhost:6060';
+    var project = 'projectName';
     Falcon.init(api, project);
 
     it('should initialize api and project', function(done) {
-        let falcon = new Falcon({
+        var falcon = new Falcon({
             step: 0,
         });
 
-        let metric =  'metricName'
-        let value = 100;
+        var metric =  'metricName'
+        var value = 100;
         falcon.gauge(metric, value);
 
         getClientRequestBody(6060, function(queue) {
@@ -27,12 +27,12 @@ describe('open-falcon', function() {
     });
 
     it('should support GAUGE and COUNTER counterType', function(done) {
-        let falcon = new Falcon({
+        var falcon = new Falcon({
             step: 0,
         });
 
-        let metric =  'metricName'
-        let value = 100;
+        var metric =  'metricName'
+        var value = 100;
         falcon.gauge(metric, value);
 
         getClientRequestBody(6060, function(queue) {
@@ -47,9 +47,9 @@ describe('open-falcon', function() {
     });
 
     it('should support fake INCREMENT counterType', function(done) {
-        let falcon = new Falcon();
+        var falcon = new Falcon();
 
-        let metric = 'metricName';
+        var metric = 'metricName';
         falcon
             .step(1)
             .increment(metric)
@@ -68,12 +68,12 @@ describe('open-falcon', function() {
     });
 
     it('should tag metric', function(done) {
-        let falcon = new Falcon({
+        var falcon = new Falcon({
             step: 0,
         });
 
-        let metric =  'metricName'
-        let value = 100;
+        var metric =  'metricName'
+        var value = 100;
         falcon
             .tag('key', 'value')
             .gauge(metric, value);
@@ -85,12 +85,12 @@ describe('open-falcon', function() {
     });
 
     it('should allow change step', function(done) {
-        let falcon = new Falcon({
+        var falcon = new Falcon({
             step: 0,
         });
 
-        let metric =  'metricName'
-        let value = 100;
+        var metric =  'metricName'
+        var value = 100;
         falcon
             .step(1)
             .gauge(metric, value);
@@ -102,11 +102,11 @@ describe('open-falcon', function() {
     });
 });
 
-let http = require('http');
+var http = require('http');
 function getClientRequestBody(port, callback) {
-    let server = http.createServer(function(req, res) {
+    var server = http.createServer(function(req, res) {
         if(req.method === "POST"){
-            let data = '';
+            var data = '';
 
             req.on('data', function(chunk){
                 data += chunk;
