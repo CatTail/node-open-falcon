@@ -76,6 +76,7 @@ Falcon.init = function(api, project, handler) {
     Falcon.API = api;
     Falcon.PROJECT = project;
     Falcon.DEFAULT_HANDLER = handler || function noop(){};
+    return Falcon;
 };
 
 Falcon.prototype.tag = function(key, value) {
@@ -148,7 +149,7 @@ Falcon.prototype.now = function() {
 Falcon.prototype.createItem = function(metric, value, options) {
     options.tags = options.tags ? (','+options.tags) : '';
 
-    var endpoint = Falcon.ENDPOINT;
+    var endpoint = options.endpoint || Falcon.ENDPOINT;
     var timestamp = this.now();
     var step = options.step || this._step;
     var counterType = options.counterType;
