@@ -1,7 +1,6 @@
 'use strict'
 var Falcon = require('..')
 var debug = require('debug')('open-falcon:test')
-var async = require('async')
 
 describe('open-falcon', function() {
     this.timeout(50000)
