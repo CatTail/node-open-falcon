@@ -51,7 +51,9 @@ function Falcon(options) {
 
     // step trigger autoFlush
     this.step(options.step === undefined ? Falcon.DEFAULT_STEP : options.step)
-    this.tag('project', Falcon.PROJECT)
+    if (Falcon.PROJECT) {
+        this.tag('project', Falcon.PROJECT)
+    }
     this._handler = options.handler || Falcon.DEFAULT_HANDLER
     if (options.tags) {
         this.tag(options.tags)
